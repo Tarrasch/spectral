@@ -712,7 +712,9 @@ mixture models in other guises (e.g., random planted partitions).
 Let $F$ be a probability distribution in $\R^n$ with the property that
  it is a convex combination of
  distributions of known type, i.e., we can decompose $F$ as
-$$F = w_1F_1 + w_2F_2 + ... + w_kF_k$$
+
+$$F = w_1F_1 + w_2F_2 + \dots + w_kF_k$$
+
 where each $F_i$ is a probability distribution with mixing weight $w_i
 \ge 0$, and $\sum_i{w_i} = 1$.  A random point from $F$ is drawn
 from distribution $F_i$ with probability $w_i$.
@@ -754,6 +756,7 @@ $1-\eps$ of the sample can be correctly classified with high probability; if we 
 $\sqrt{\log m}$ where $m$ is the size of the sample, then with high probability, every pair of points from different components
 would be farther apart than any pair of points from the same component, and classification is easy.  For example, we can
 use the following distance-based classification algorithm (sometimes called {\em single linkage}):
+
 \begin{enumerate}
 \item Sort all pairwise distances in increasing order.
 \item Choose edges in this order till the edges chosen form exactly two connected components.
@@ -779,16 +782,19 @@ the classification problem and will assume separable mixtures.
 
 \section{Separable mixtures}
 
-In order to correctly identify sample points, we require a small
-overlap of distributions.  How can we quantify the distance between
-distributions?  One way, if we only have two distributions, is to take
-the total variation distance,
+In order to correctly identify sample points, we require the overlap of
+distributions to be small .  How can we quantify the distance between
+distributions?  One way, if we only have two distributions, is to take the
+total variation distance,
+
 \[
 d_{TV}(f_1,f_2) = \frac{1}{2}\int_{\R^n} |f_1(x)-f_2(x)|\, dx.
 \]
+
 We can require this to be large for two well-separated distributions, i.e.,
 $d_{TV}(f_1,f_2) \ge 1-\eps$, if we tolerate $\eps$ error. We can incorporate
 mixing weights in this condition, allowing for two components to overlap more if the mixing weight of one of them is small:
+
 \[
 d_{TV}(f_1, f_2) = \int_{\R^n} |w_1f_1(x)- w_2f_2(x)| \, dx \ge 1-\eps.
 \]
@@ -1031,10 +1037,12 @@ extend to?
 Next we study how our characterization of the SVD subspace can be extended.
 
 \begin{definition}
+
 Random variable $X\in\mathbb R^n$ has a {\em weakly isotropic} distribution with mean $\mu$ and
 variance $\sigma^2$
 if
-\[\E{(w\cdot (X-\mu))^2}=\sigma^2,\quad\forall w\in\mathbb R^n,~\|w\|=1.\]
+\[\E((w \cdot (X-\mu))^2) =\sigma^2,\quad\forall w\in\mathbb R^n,~\|w\|=1.\]
+
 \end{definition}
 
  A spherical Gaussian is clearly weakly isotropic. The uniform distribution in a cube is also weakly isotropic.
