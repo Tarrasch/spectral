@@ -1089,6 +1089,145 @@ Using this fact, derive a bound on the pairwise separation of the means of the c
 that spectral projection followed by distance-based classification succeeds with high probability.
 \end{exercise}
 
+\section{Learning the parameters}\label{sec:learnmix}
+
+So far our efforts have been to partition the observed sample points.
+The other interesting problem proposed in the introduction of this
+chapter was to identify the values $\mu_i$, $\sigma_i$ and $w_i$. We'll
+now show that this is possible in polynomial time if the $\mu_i$'s are
+linearly independent.
+
+We'll be starting off by...
+
+\begin{eqnarray*}
+  \E(X) &=& \mu
+\end{eqnarray*}
+
+\begin{eqnarray*}
+  \E(Y)
+  &=& \sum_i \E(X_i) \\
+  &=& \sum_i \mu_i
+\end{eqnarray*}
+
+\begin{eqnarray*}
+  \E(Y \otimes Y)_{j k}
+  &=& \E(Y_j Y_k)
+\end{eqnarray*}
+
+Before we go on, lets clarify some notation. The operator $\otimes$ is
+the tensor product, intuitively it can be thought of $ u \otimes v = u
+v^T $. Note how $u$ and $v$ are vectors but $u v^T$ is a matrix. For a
+tensor product, a matrix times a vector, say $A \otimes u$ is a tensor
+with three dimensions. That is the resulting dimensionality is the sum
+of the arguments dimensionality.
+
+The second notation is that $X_i$ refers to the distribution $ X_i \sim
+N(\mu_i, \sigma_i^2) $ but $Y_j$ simply is the $j$:th component of $Y$.  $i$
+will always loop from $1$ to $k$ but $j$, $k$ and $l$ will loop from $1$ to
+$n$. Lastly, there is no $X$ without any index, nor does $\mu$ and $\sigma$,
+but we really mean $X_i$, $\mu_i$ etc. for all $i$ when we use them without a
+index.
+
+Now we'll be analyzing some more involved expressions, it should be clear
+soon how these relates learning the component distributions.
+
+\begin{eqnarray*}
+  \E(X \otimes X)
+  &=& \E((X-\mu+\mu) \otimes (X-\mu+\mu)) \\
+  &=& \E((X-\mu) \otimes (X-\mu)) + \mu \otimes \mu \\
+  &=& \sigma_i^2 I + \mu \otimes \mu
+\end{eqnarray*}
+
+Which gives us
+
+\begin{eqnarray*}
+  \E(Y \otimes Y)
+  &=& \sum_i w_i \E(X \otimes X) \\
+  &=& (\sum_i \sigma_i^2) I + \sum_i w_i (\mu_i \otimes \mu_i)
+\end{eqnarray*}
+
+Lets now study what happens if we take the inner product of $Y$ and some
+vector $v$.
+
+\begin{eqnarray*}
+  \E( (Y \cdot v)^2 )
+  &=& v^T \E(Y \otimes Y) v \\
+  &=& \sum_i w_i \sigma_i^2 + \sum_i w_i (\mu_i^T v)^2
+\end{eqnarray*}
+
+One interesting idea is to take $v$ such that $v \perp span\{\mu_1 \dots
+\mu_k\}$, then we have:
+
+\begin{eqnarray*}
+  \E( (Y \cdot v)^2 )
+  &=& \sum_i w_i \sigma_i^2
+\end{eqnarray*}
+
+Of course we don't know the $\mu_i$s so finding that $v$ orthogonal to them is
+not trivial but possible. (\textbf{is this true??????})
+
+Now we'll do the analogous calculations for $X \otimes X \otimes X$ and $Y$.
+
+\begin{eqnarray*}
+  \E(X \otimes X \otimes X)
+  &=& \dots \\
+  &=& \mu \otimes \mu \otimes \mu + \sigma_i^2 \sum_j (e_j \otimes e_j \otimes \mu + \dots)
+\end{eqnarray*}
+
+\dots \{some more calculations\} \dots
+
+From this we trivially get
+
+\begin{eqnarray*}
+  \E(Y \otimes Y \otimes Y)
+  &=& \dots \\
+  &=& \sum_i w_i (\mu_i \otimes \mu_i \otimes \mu_i)
+   +  \sum_j (e_j \otimes e_j \otimes M + \dots)
+\end{eqnarray*}
+
+Where $M = \E(Y((Y-\mu) \cdot v)^2 )$ where $\mu$ is \textbf{WHAT?}. Just like
+for the $Y \otimes Y$ case we can find the minimum (\textbf{REALLY?}) and just
+keep $\sum_i w_i (\mu_i \otimes \mu_i \otimes \mu_i)$.
+
+As of now, it's still not clear how we've come closer to actually calculating
+$\mu$, $\sigma$ and $w$. However, we've established a relation between $B_2 =
+\sum w \mu \mu$, $B_3 = \sum w \mu \mu \mu$ and $\E(Y \otimes Y)$, $\E(Y
+\otimes Y \otimes Y)$.
+
+By now, we've established equations that let us state the main theorem of
+this section.
+
+\begin{theorem}\label{thm:learnmix}
+  Given $B_2$ and $B_3$ from above. If the means are linearly independent, we
+  can find all the three parameters for each distribution in polynomial time.
+\end{theorem}
+
+Make $B_2$ isotropic by decomposing it into $B_2 = W W^T$. Let $\tilde{\mu_i} = W^{-1} \mu_i$.
+From this definition we have
+
+\[
+  \sum_i w_i (\tilde{\mu_i} \otimes \tilde{\mu_i}) = I
+\]
+
+We also define a three dimensional tensor $T$ as
+
+\[
+  T = \sum_i w_i (\tilde{\mu_i} \otimes \tilde{\mu_i} \otimes \tilde{\mu_i} )
+\]
+
+Seeing $T$ as a function we'll get
+
+\[
+  T(x) = \sum_i w_i (\tilde{\mu_i}^T x)^3
+\]
+
+Where $|x| = 1$. Now, study $T(x)$, for any local maxima in the function, $x$
+must be "on" one of the $\tilde{\mu_i}^T$s. If we were to find one such $x$ we
+set our first found mean to be \textbf{WHAT?, how do you "get rid of $w$}, then
+you simply remove the $\tilde{\mu_i}$ \textbf{HOW? Is this even correct?}
+
+\textbf{Finally. How do you get the $\sigma$s?}.
+
 \section{Mixtures of general distributions}\label{sec:genmix}
 For a mixture of general distributions, the subspace that maximizes the squared projections is not the best subspace for our classification purpose any more. Consider two components that resemble ``parallel pancakes'', i.e., two Gaussians that are narrow and separated along one direction and spherical (and identical) in all other directions. They are separable by a hyperplane orthogonal to the line joining their means. However, the 2-dimensional subspace that maximizes the sum of squared projections (and hence minimizes the sum of squared distances)
 is parallel to the two pancakes. Hence after projection to this subspace, the two means collapse and we can not separate
