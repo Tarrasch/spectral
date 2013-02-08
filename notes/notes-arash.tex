@@ -1095,9 +1095,12 @@ So far our efforts have been to partition the observed sample points.
 The other interesting problem proposed in the introduction of this
 chapter was to identify the values $\mu_i$, $\sigma_i$ and $w_i$. We'll
 now show that this is possible in polynomial time if the $\mu_i$'s are
-linearly independent.
+linearly independent. For this section we let $X_i$ denote $F_i$,
+that is $X_1 \dots X_k$ are the $k$ distributions and we let $Y$ denote
+$F$, however let indexing on $Y$ like $Y_j$ mean the $j$th component and
+not the $j$th distribution.
 
-We'll be starting off by...
+Now, for any $X \sim N(\mu, \sigma^2 I)$ we have
 
 \begin{eqnarray*}
   \E(X) &=& \mu
@@ -1105,8 +1108,8 @@ We'll be starting off by...
 
 \begin{eqnarray*}
   \E(Y)
-  &=& \sum_i \E(X_i) \\
-  &=& \sum_i \mu_i
+  &=& \sum_i w_i \E(X_i) \\
+  &=& \sum_i w_i \mu_i
 \end{eqnarray*}
 
 \begin{eqnarray*}
@@ -1117,16 +1120,9 @@ We'll be starting off by...
 Before we go on, lets clarify some notation. The operator $\otimes$ is
 the tensor product, intuitively it can be thought of $ u \otimes v = u
 v^T $. Note how $u$ and $v$ are vectors but $u v^T$ is a matrix. For a
-tensor product, a matrix times a vector, say $A \otimes u$ is a tensor
-with three dimensions. That is the resulting dimensionality is the sum
-of the arguments dimensionality.
-
-The second notation is that $X_i$ refers to the distribution $ X_i \sim
-N(\mu_i, \sigma_i^2) $ but $Y_j$ simply is the $j$:th component of $Y$.  $i$
-will always loop from $1$ to $k$ but $j$, $k$ and $l$ will loop from $1$ to
-$n$. Lastly, there is no $X$ without any index, nor does $\mu$ and $\sigma$,
-but we really mean $X_i$, $\mu_i$ etc. for all $i$ when we use them without a
-index.
+tensor product between a matrix and a vector, say $A \otimes u$, the
+result is a tensor with three dimensions. In general, the resulting
+dimensionality is the sum of the arguments dimensionality.
 
 Now we'll be analyzing some more involved expressions, it should be clear
 soon how these relates learning the component distributions.
@@ -1155,24 +1151,96 @@ vector $v$.
   &=& \sum_i w_i \sigma_i^2 + \sum_i w_i (\mu_i^T v)^2
 \end{eqnarray*}
 
-One interesting idea is to take $v$ such that $v \perp span\{\mu_1 \dots
-\mu_k\}$, then we have:
+One interesting idea is if $v$ were such that $v \perp span\{\mu_1 \dots
+\mu_k\}$, then we would have:
 
 \begin{eqnarray*}
   \E( (Y \cdot v)^2 )
   &=& \sum_i w_i \sigma_i^2
 \end{eqnarray*}
 
-Of course we don't know the $\mu_i$s so finding that $v$ orthogonal to them is
-not trivial but possible. (\textbf{is this true??????})
+But we don't know the $\mu_i$s, so finding that $v$ orthogonal to them
+is not straight forward. But, if we would to take the the SVD of the $m
+\times n$ matrix containing our $m$ observations, the top $k$ singular
+vectors would be the best fit $k$ dimensional subspace (see theorem
+\ref{svdFrob}) which is going to be $\span\{\mu_1 \dots \mu_k\}$.
 
-Now we'll do the analogous calculations for $X \otimes X \otimes X$ and $Y$.
+\begin{exercise}\label{ex:svd-gives-sigma}
+  How would you go about to solve for $\sum_i w_i \sigma_i^2$. We've
+  already shown how it's doable given a vector $v$ perpendicular to the
+  means.  Show how it's also possible to get $\sum_i w_i \sigma_i^2$ without such a $v$.
+\end{exercise}
+
+\begin{exercise}
+  Consider $S(v) = \E( (Y \cdot v)^2 )$. When we are hitting a local
+  maxima with the argument $|v| = 1$, can we safely say that $v$ is
+  parallell to one of the means? What if the means are all of the same
+  length? What if the lengths are all different? Does linear
+  independence matter here? Is there anything more than the
+  $\span\{\mu_1 \dots \mu_k\}$ you can retrieve from the second moments?
+  Show that it's not possible even in the most ideal situation
+  (right-angled means and all means having different lenghts), you can
+  draw a few convincing examples.
+\end{exercise}
+
+From the exercises above it should now be clear that the calculations
+for the second moments are not enought to retrieve the distribution
+parameters. It might be worth experimenting with third moments so lets
+calculate the expectations for $X \otimes X \otimes X$ and
+$Y \otimes Y \otimes Y$.
+
+% I'm getting tired of writin \otimes, lets define some macros ... /Arash
+
+\newcommand{\tensor}[3]{
+  \ensuremath{#1 \otimes #2 \otimes #3}
+}
+
+\newcommand{\tensorsame}[1]{
+  \tensor{#1}{#1}{#1}
+}
+
+\newcommand{\perms}[2]{
+  \tensor{#1}{#2}{#2} +
+  \tensor{#2}{#1}{#2} +
+  \tensor{#2}{#2}{#1}
+}
 
 \begin{eqnarray*}
   \E(X \otimes X \otimes X)
-  &=& \dots \\
-  &=& \mu \otimes \mu \otimes \mu + \sigma_i^2 \sum_j (e_j \otimes e_j \otimes \mu + \dots)
+  &=& \E((X - \mu + \mu) \otimes (X - \mu + \mu) \otimes (X - \mu + \mu) \\
+  &=& \E(\tensorsame{X - \mu}) \\
+  &+& \E(\perms{\mu}{(X - \mu)}) \\
+  &+& \E(\perms{(X - \mu)}{\mu}) \\
+  &+& \E(\tensorsame{\mu}) \\
+  &=& \E(\perms{\mu}{(X - \mu)}) \\
+  &+& \E(\tensorsame{\mu}) \\
+  &=& \E(\tensor{\mu}{(X - \mu)}{(X - \mu)}) \\
+  &+& \E(\tensor{(X - \mu)}{\mu}{(X - \mu)}) \\
+  &+& \E(\tensor{(X - \mu)}{(X - \mu)}{\mu}) \\
+  &+& \E(\tensorsame{\mu}) \\
+  &=& \mu \otimes \sigma^2 I \\
+  &+& \sigma^2 \sum_j^n \tensor{e_j}{\mu}{e_j} \\
+  &+& \sigma^2 I \otimes \mu \\
+  &+& \tensorsame{\mu} \\
+  &=& \sigma^2 \sum_j^n \perms{\mu}{e_j} \\
+  &+& \tensorsame{\mu} \\
 \end{eqnarray*}
+
+Of course the third moment for $Y$ can be expressed as
+
+\[
+  \E(Y \otimes Y \otimes Y) =
+  \sum_i^k w_i \sigma^2 \sum_j^n \perms{\mu_i}{e_j} + \sum_i^k w_i \tensorsame{\mu_i}
+\]
+
+However, we must not forget that we haven't really made any progress
+unless our subexpressions are estimateable using the sample points. When
+we were doing calculations for the second moment, could in the end
+estimate $\sum_i w_i \mu_i \otimes \mu_i$ from $\E(Y \otimes Y)$ and
+$\sum_i w_i \sigma_i^2$ using the SVD, see excercise
+\ref{ex:svd-gives-sigma}. Similarly we are now going to show that we'll
+be able to estimate $\sum_i^k w_i \sigma^2 \sum_j^n \perms{\mu_i}{e_j}$
+and hence also $\sum_i w_i \tensorsame{\mu_i}$.
 
 \dots \{some more calculations\} \dots
 
@@ -1192,18 +1260,16 @@ keep $\sum_i w_i (\mu_i \otimes \mu_i \otimes \mu_i)$.
 As of now, it's still not clear how we've come closer to actually calculating
 $\mu$, $\sigma$ and $w$. However, we've established a relation between $B_2 =
 \sum w \mu \mu$, $B_3 = \sum w \mu \mu \mu$ and $\E(Y \otimes Y)$, $\E(Y
-\otimes Y \otimes Y)$.
-
-By now, we've established equations that let us state the main theorem of
-this section.
+\otimes Y \otimes Y)$. We can now state the main theorem of this section.
 
 \begin{theorem}\label{thm:learnmix}
-  Given $B_2$ and $B_3$ from above. If the means are linearly independent, we
-  can find all the three parameters for each distribution in polynomial time.
+  Given $B_2$ and $B_3$ from above. If all the means $\mu_1 \dots \mu_k$ are
+  linearly independent, we can find all the three parameters for each
+  distribution in polynomial time.
 \end{theorem}
 
-Make $B_2$ isotropic by decomposing it into $B_2 = W W^T$. Let $\tilde{\mu_i} = W^{-1} \mu_i$.
-From this definition we have
+Make $B_2$ isotropic by decomposing it into $B_2 = W W^T$. Let $\tilde{\mu_i} =
+W^{-1} \mu_i$.  \textbf{Why do we do this?} From this definition we have
 
 \[
   \sum_i w_i (\tilde{\mu_i} \otimes \tilde{\mu_i}) = I
@@ -1215,7 +1281,7 @@ We also define a three dimensional tensor $T$ as
   T = \sum_i w_i (\tilde{\mu_i} \otimes \tilde{\mu_i} \otimes \tilde{\mu_i} )
 \]
 
-Seeing $T$ as a function we'll get
+Defining $T$ as a function we get
 
 \[
   T(x) = \sum_i w_i (\tilde{\mu_i}^T x)^3
@@ -1223,7 +1289,7 @@ Seeing $T$ as a function we'll get
 
 Where $|x| = 1$. Now, study $T(x)$, for any local maxima in the function, $x$
 must be "on" one of the $\tilde{\mu_i}^T$s. If we were to find one such $x$ we
-set our first found mean to be \textbf{WHAT?, how do you "get rid of $w$}, then
+set our first found mean to be \textbf{WHAT?, how do you "get rid of $w$"}, then
 you simply remove the $\tilde{\mu_i}$ \textbf{HOW? Is this even correct?}
 
 \textbf{Finally. How do you get the $\sigma$s?}.
