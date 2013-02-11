@@ -1139,7 +1139,7 @@ Which gives us
 \begin{eqnarray*}
   \E(Y \otimes Y)
   &=& \sum_i w_i \E(X \otimes X) \\
-  &=& (\sum_i \sigma_i^2) I + \sum_i w_i (\mu_i \otimes \mu_i)
+  &=& (\sum_i w_i \sigma_i^2) I + \sum_i w_i (\mu_i \otimes \mu_i)
 \end{eqnarray*}
 
 Lets now study what happens if we take the inner product of $Y$ and some
@@ -1207,21 +1207,22 @@ $Y \otimes Y \otimes Y$.
 
 \begin{eqnarray*}
   \E(X \otimes X \otimes X)
-  &=& \E((X - \mu + \mu) \otimes (X - \mu + \mu) \otimes (X - \mu + \mu) \\
+  &=& \E((X - \mu + \mu) \otimes (X - \mu + \mu) \otimes (X - \mu + \mu)
+  \\ \\
   &=& \E(\tensorsame{X - \mu}) \\
   &+& \E(\perms{\mu}{(X - \mu)}) \\
   &+& \E(\perms{(X - \mu)}{\mu}) \\
-  &+& \E(\tensorsame{\mu}) \\
+  &+& \E(\tensorsame{\mu}) \\ \\
   &=& \E(\perms{\mu}{(X - \mu)}) \\
-  &+& \E(\tensorsame{\mu}) \\
+  &+& \E(\tensorsame{\mu}) \\ \\
   &=& \E(\tensor{\mu}{(X - \mu)}{(X - \mu)}) \\
   &+& \E(\tensor{(X - \mu)}{\mu}{(X - \mu)}) \\
   &+& \E(\tensor{(X - \mu)}{(X - \mu)}{\mu}) \\
-  &+& \E(\tensorsame{\mu}) \\
+  &+& \E(\tensorsame{\mu}) \\ \\
   &=& \mu \otimes \sigma^2 I \\
   &+& \sigma^2 \sum_j^n \tensor{e_j}{\mu}{e_j} \\
   &+& \sigma^2 I \otimes \mu \\
-  &+& \tensorsame{\mu} \\
+  &+& \tensorsame{\mu} \\ \\
   &=& \sigma^2 \sum_j^n \perms{\mu}{e_j} \\
   &+& \tensorsame{\mu} \\
 \end{eqnarray*}
@@ -1235,27 +1236,49 @@ Of course the third moment for $Y$ can be expressed as
 
 However, we must not forget that we haven't really made any progress
 unless our subexpressions are estimateable using the sample points. When
-we were doing calculations for the second moment, could in the end
+we were doing calculations for the second moment, we could in the end
 estimate $\sum_i w_i \mu_i \otimes \mu_i$ from $\E(Y \otimes Y)$ and
 $\sum_i w_i \sigma_i^2$ using the SVD, see excercise
 \ref{ex:svd-gives-sigma}. Similarly we are now going to show that we'll
 be able to estimate $\sum_i^k w_i \sigma^2 \sum_j^n \perms{\mu_i}{e_j}$
 and hence also $\sum_i w_i \tensorsame{\mu_i}$.
 
-\dots \{some more calculations\} \dots
-
-From this we trivially get
+In order to progress we'll use the same idea of having the parameter
+$v$.
 
 \begin{eqnarray*}
-  \E(Y \otimes Y \otimes Y)
-  &=& \dots \\
-  &=& \sum_i w_i (\mu_i \otimes \mu_i \otimes \mu_i)
-   +  \sum_j (e_j \otimes e_j \otimes M + \dots)
+  \E(X((X-\mu) \cdot v)^2)
+  &=& \E((X-\mu+\mu)((X-\mu) \cdot v)^2) \\
+  &=& \E((X-\mu)((X-\mu) \cdot v)^2) + \E(\mu((X-\mu) \cdot v)^2) \\
+  &=& 0 + \E(\mu((X-\mu) \cdot v)^2) \\
+  &=& \E(((X-\mu) \cdot v)^2)\mu \\
+  &=& \sigma^2 \mu
 \end{eqnarray*}
 
-Where $M = \E(Y((Y-\mu) \cdot v)^2 )$ where $\mu$ is \textbf{WHAT?}. Just like
-for the $Y \otimes Y$ case we can find the minimum (\textbf{REALLY?}) and just
-keep $\sum_i w_i (\mu_i \otimes \mu_i \otimes \mu_i)$.
+
+Now, let's form the expression $M = \E(Y((Y-\mu_Y) \cdot v)^2 )$ where
+$\mu_Y$ is the mean of $Y$. Note that $M$ is a estimateable vector and
+also parametrized over $v$.
+
+\begin{eqnarray*}
+  \E(\tensorsame{Y})
+  &=& \sum_i w_i (\mu_i \otimes \mu_i \otimes \mu_i) \\
+  &+& \sum_j (\perms{M}{e_j})
+\end{eqnarray*}
+
+\begin{exercise}
+  Show the intermediete steps in the last equation. What role does the
+  parameter $v$ in $M$ play here, what would have happened if we were
+  just to say $M = \E(Y(|(Y-\mu_Y)|)^2 )$?
+\end{exercise}
+
+
+\begin{exercise}
+  Just like for the $Y \otimes Y$ case we can find the minimum and just
+  keep $\sum_i w_i (\mu_i \otimes \mu_i \otimes \mu_i)$. How? Keep in
+  mind that you only see observations from $Y$ and know nothing about
+  each $X$.
+\end{exercise}
 
 As of now, it's still not clear how we've come closer to actually calculating
 $\mu$, $\sigma$ and $w$. However, we've established a relation between $B_2 =
@@ -1271,24 +1294,33 @@ $\mu$, $\sigma$ and $w$. However, we've established a relation between $B_2 =
 Make $B_2$ isotropic by decomposing it into $B_2 = W W^T$. Let $\tilde{\mu_i} =
 W^{-1} \mu_i$.  \textbf{Why do we do this?} From this definition we have
 
-\[
-  \sum_i w_i (\tilde{\mu_i} \otimes \tilde{\mu_i}) = I
-\]
+\begin{eqnarray*}
+  \sum_i w_i (\tilde{\mu_i} \otimes \tilde{\mu_i})
+  &=& \sum_i w_i (W^{-1} \mu_i)(W^{-1} \mu_i)^T \\
+  &=& \sum_i w_i W^{-1} (\mu_i \mu_i^T) {W^{-1}}^T \\
+  &=& W^{-1} (\sum_i w_i \mu_i \mu_i^T) {W^{-1}}^T \\
+  &=& W^{-1} B_2 {W^{-1}}^T \\
+  &=& I
+\end{eqnarray*}
 
 We also define a three dimensional tensor $T$ as
 
 \[
-  T = \sum_i w_i (\tilde{\mu_i} \otimes \tilde{\mu_i} \otimes \tilde{\mu_i} )
+  T = \sum_i w_i (\tensorsame{ \tilde{\mu_i} })
 \]
 
-Defining $T$ as a function we get
+Defining $T$ as a real valued function we get
 
-\[
-  T(x) = \sum_i w_i (\tilde{\mu_i}^T x)^3
-\]
+\begin{eqnarray*}
+  T(x)
+  &=& \sum_{jkl} T_{jkl} x_j x_k x_l \\
+  &=& \sum_{jkl} (\sum_i w_i (\tensorsame{ \tilde{\mu_i} })) x_j x_k x_l \\
+  &=& \sum_i w_i (\tilde{\mu_i} \cdot x)^3
+\end{eqnarray*}
 
 Where $|x| = 1$. Now, study $T(x)$, for any local maxima in the function, $x$
-must be "on" one of the $\tilde{\mu_i}^T$s. If we were to find one such $x$ we
+must be "on" one of the $\tilde{\mu_i}$s. The basic way of getting such
+an $x$ would be to doing the power iteration $x := (x^T T x)/|x^T T x|$ If we were to find one such $x$ we
 set our first found mean to be \textbf{WHAT?, how do you "get rid of $w$"}, then
 you simply remove the $\tilde{\mu_i}$ \textbf{HOW? Is this even correct?}
 
