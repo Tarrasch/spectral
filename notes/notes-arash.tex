@@ -1103,16 +1103,12 @@ not the $j$th distribution.
 Now, for any $X \sim N(\mu, \sigma^2 I)$ we have
 
 \begin{eqnarray*}
-  \E(X) &=& \mu
-\end{eqnarray*}
-
-\begin{eqnarray*}
+  \E(X)
+  &=& \mu \\
+  \\
   \E(Y)
-  &=& \sum_i w_i \E(X_i) \\
-  &=& \sum_i w_i \mu_i
-\end{eqnarray*}
-
-\begin{eqnarray*}
+  &=& \sum_i w_i \E(X_i) = \sum_i w_i \mu_i \\
+  \\
   \E(Y \otimes Y)_{j k}
   &=& \E(Y_j Y_k)
 \end{eqnarray*}
@@ -1151,7 +1147,7 @@ vector $v$.
   &=& \sum_i w_i \sigma_i^2 + \sum_i w_i (\mu_i^T v)^2
 \end{eqnarray*}
 
-One interesting idea is if $v$ were such that $v \perp span\{\mu_1 \dots
+One interesting idea is if $v$ were such that $v \perp \span\{\mu_1 \dots
 \mu_k\}$, then we would have:
 
 \begin{eqnarray*}
@@ -1171,7 +1167,7 @@ vectors would be the best fit $k$ dimensional subspace (see theorem
   means.  Show how it's also possible to get $\sum_i w_i \sigma_i^2$ without such a $v$.
 \end{exercise}
 
-\begin{exercise}
+\begin{exercise}\label{ex:second-moment-not-enough}
   Consider $S(v) = \E( (Y \cdot v)^2 )$. When we are hitting a local
   maxima with the argument $|v| = 1$, can we safely say that $v$ is
   parallell to one of the means? What if the means are all of the same
@@ -1206,33 +1202,37 @@ $Y \otimes Y \otimes Y$.
 }
 
 \begin{eqnarray*}
-  \E(X \otimes X \otimes X)
+&&\E(X \otimes X \otimes X) \\
   &=& \E((X - \mu + \mu) \otimes (X - \mu + \mu) \otimes (X - \mu + \mu)
   \\ \\
   &=& \E(\tensorsame{X - \mu}) \\
   &+& \E(\perms{\mu}{(X - \mu)}) \\
   &+& \E(\perms{(X - \mu)}{\mu}) \\
-  &+& \E(\tensorsame{\mu}) \\ \\
+  &+& \E(\tensorsame{\mu}) \\
+&&\\
+&&\text{ The odd powers of $(X-\mu)$ have mean zero} \\
+&&\\
   &=& \E(\perms{\mu}{(X - \mu)}) \\
   &+& \E(\tensorsame{\mu}) \\ \\
   &=& \E(\tensor{\mu}{(X - \mu)}{(X - \mu)}) \\
   &+& \E(\tensor{(X - \mu)}{\mu}{(X - \mu)}) \\
   &+& \E(\tensor{(X - \mu)}{(X - \mu)}{\mu}) \\
   &+& \E(\tensorsame{\mu}) \\ \\
-  &=& \mu \otimes \sigma^2 I \\
-  &+& \sigma^2 \sum_j^n \tensor{e_j}{\mu}{e_j} \\
-  &+& \sigma^2 I \otimes \mu \\
+  &=& \mu \otimes \sigma^2 I
+   +  \sigma^2 \sum_j^n \tensor{e_j}{\mu}{e_j}
+   +  \sigma^2 I \otimes \mu \\
   &+& \tensorsame{\mu} \\ \\
   &=& \sigma^2 \sum_j^n \perms{\mu}{e_j} \\
   &+& \tensorsame{\mu} \\
 \end{eqnarray*}
 
-Of course the third moment for $Y$ can be expressed as
+Then the third moment for $Y$ can be expressed as
 
-\[
-  \E(Y \otimes Y \otimes Y) =
-  \sum_i^k w_i \sigma^2 \sum_j^n \perms{\mu_i}{e_j} + \sum_i^k w_i \tensorsame{\mu_i}
-\]
+\begin{eqnarray*}
+  \E(\tensorsame{Y})
+  &=& \sum_i^k w_i \sigma^2_i \left( \sum_j^n \perms{\mu_i}{e_j} \right) \\
+  &+& \sum_i^k w_i \tensorsame{\mu_i}
+\end{eqnarray*}
 
 However, we must not forget that we haven't really made any progress
 unless our subexpressions are estimateable using the sample points. When
@@ -1256,34 +1256,66 @@ $v$.
 \end{eqnarray*}
 
 
-Now, let's form the expression $M = \E(Y((Y-\mu_Y) \cdot v)^2 )$ where
-$\mu_Y$ is the mean of $Y$. Note that $M$ is a estimateable vector and
+Now, let's form the expression $u = \E(Y((Y-\mu_Y) \cdot v)^2 )$ where
+$\mu_Y$ is the mean of $Y$. Note that $u$ is a estimateable vector and
 also parametrized over $v$.
 
 \begin{eqnarray*}
   \E(\tensorsame{Y})
   &=& \sum_i w_i (\mu_i \otimes \mu_i \otimes \mu_i) \\
-  &+& \sum_j (\perms{M}{e_j})
+  &+& \sum_j (\perms{u}{e_j})
 \end{eqnarray*}
 
-\begin{exercise}
-  Show the intermediete steps in the last equation. What role does the
-  parameter $v$ in $M$ play here, what would have happened if we were
-  just to say $M = \E(Y(|(Y-\mu_Y)|)^2 )$?
-\end{exercise}
-
-
-\begin{exercise}
-  Just like for the $Y \otimes Y$ case we can find the minimum and just
-  keep $\sum_i w_i (\mu_i \otimes \mu_i \otimes \mu_i)$. How? Keep in
-  mind that you only see observations from $Y$ and know nothing about
-  each $X$.
-\end{exercise}
-
 As of now, it's still not clear how we've come closer to actually calculating
-$\mu$, $\sigma$ and $w$. However, we've established a relation between $B_2 =
-\sum w \mu \mu$, $B_3 = \sum w \mu \mu \mu$ and $\E(Y \otimes Y)$, $\E(Y
-\otimes Y \otimes Y)$. We can now state the main theorem of this section.
+$\mu$, $\sigma$ and $w$. However, we've computed $B_2 = \sum_i w_i \mu_i
+\otimes \mu_i$ and $B_3 = \sum_i w_i \tensorsame{\mu_i}$. Before we go ahead
+and state the main theorem, let's first give the algorithm to give a feel of
+what's ahead.
+
+\begin{center}
+\fbox{\parbox{4.7in}{
+\begin{minipage}{4.5in}
+\begin{tt}
+{\bf Algorithm: Learning the parameters}
+
+\begin{enumerate}
+  \item
+    Let $S$ be the samples, it's a matrix with $m$ rows of points in $\R^n$. In
+    this algorithm context, we let $Y_E$ be $\frac{1}{m} \sum_i^m S_{(i)}$.
+    Similarly $Y_{E^2} = \frac{1}{m} \sum_i^m S_{(i)} \otimes S_{(i)}$. Where
+    $S_{(i)}$ is the $i$th row of $S$ as a column vector.
+  \item Get any of the  $n-k$ smallest singular values of $Y_{E^2}$, they should
+    all be the same and equal to $\sum_i^k w_i \sigma_i^2$
+  \item Form $B_2 = Y_{E^2} - (\sum_i w_i \sigma_i^2)I$ and decompose it into $B_2 = W W^T$.
+    Now form $\tilde Y_{E^3} = \frac{1}{m} \sum_i^m \tensorsame{W^{-1} S_{(i)}}$
+  \item Form $\tilde B_3 = \tilde Y_{E^3} - \sum_j^n \perms{\tilde u_E}{e_j}$
+    where $\tilde u_E = \frac{1}{m} \sum_i^m W^{-1}
+    S_{(i)}\left((W^{-1} S_{(i)}-\tilde Y_E) \cdot e_1 \right)^2$
+  \item Let a random unit vector $x$
+    in $\R^n$ converge when applying a projected power iteration on
+    $\tilde B_3$, that is repeteadly applying $x := normalize(P x^T \tilde B_3 x)$
+    until convergence where $P$ is $I$ initially. Then set $\mu_1 =
+    \sum_{jkl} \left(\tilde B_{3_{jkl}} x_j x_k x_l \right) x$ and $P := P P_{\perp \tilde
+      \mu_1} = P (I - \frac{\tilde \mu_1 \tilde \mu_1^T}{\tilde \mu_1^T \tilde
+      \mu_1})$. Also $w_1 = \frac{1}{|\tilde \mu_1|^2} $. Now repeat
+    this procedure to unveil $\tilde \mu_2 \dots \tilde \mu_k$.
+  \item Even though knowing all weights and each $\mu_i$ (as of $\mu_i = W \tilde \mu_i$).
+    There is no closed formula for retrieving the variances.  However,
+    we can easily guess the origins of the points. Knowing the
+    means, we can simply sort the points by shortest distance to any mean.  Also, we
+    know approximately when a distribution has gotten assigned enough points
+    since we have the weights for all distributions too.
+\end{enumerate}
+\end{tt}
+\end{minipage}
+}}
+\end{center}
+
+For us, the second moment gives a good linear transformation in which the means
+become nearly orthonormal. Then, the third moment gives us a tensor were power
+iteration finds more than just the span of the means (see excercise
+\ref{ex:second-moment-not-enough}). The tensor and transformation parts of this
+algorithm will be motivated after this theorem.
 
 \begin{theorem}\label{thm:learnmix}
   Given $B_2$ and $B_3$ from above. If all the means $\mu_1 \dots \mu_k$ are
@@ -1292,7 +1324,7 @@ $\mu$, $\sigma$ and $w$. However, we've established a relation between $B_2 =
 \end{theorem}
 
 Make $B_2$ isotropic by decomposing it into $B_2 = W W^T$. Let $\tilde{\mu_i} =
-W^{-1} \mu_i$.  \textbf{Why do we do this?} From this definition we have
+W^{-1} \mu_i$. From this definition we have
 
 \begin{eqnarray*}
   \sum_i w_i (\tilde{\mu_i} \otimes \tilde{\mu_i})
@@ -1303,7 +1335,11 @@ W^{-1} \mu_i$.  \textbf{Why do we do this?} From this definition we have
   &=& I
 \end{eqnarray*}
 
-We also define a three dimensional tensor $T$ as
+\begin{exercise}
+  Show that the $\sqrt{w_i} \tilde{\mu_i}$ are orthonormal.
+\end{exercise}
+
+Now we also define a three dimensional tensor $T$ as
 
 \[
   T = \sum_i w_i (\tensorsame{ \tilde{\mu_i} })
@@ -1312,19 +1348,20 @@ We also define a three dimensional tensor $T$ as
 Defining $T$ as a real valued function we get
 
 \begin{eqnarray*}
-  T(x)
+  T(x, x, x)
   &=& \sum_{jkl} T_{jkl} x_j x_k x_l \\
   &=& \sum_{jkl} (\sum_i w_i (\tensorsame{ \tilde{\mu_i} })) x_j x_k x_l \\
   &=& \sum_i w_i (\tilde{\mu_i} \cdot x)^3
 \end{eqnarray*}
 
-Where $|x| = 1$. Now, study $T(x)$, for any local maxima in the function, $x$
-must be "on" one of the $\tilde{\mu_i}$s. The basic way of getting such
-an $x$ would be to doing the power iteration $x := (x^T T x)/|x^T T x|$ If we were to find one such $x$ we
-set our first found mean to be \textbf{WHAT?, how do you "get rid of $w$"}, then
-you simply remove the $\tilde{\mu_i}$ \textbf{HOW? Is this even correct?}
-
-\textbf{Finally. How do you get the $\sigma$s?}.
+Where $|x| = 1$. Now, study $T(x) = T(x, x, x)$, for any local maxima in the
+function, $x$ must be "on" one of the $\tilde{\mu_i}$s. The basic way of
+getting such an $x$ would be to apply the power iteration $x := (x^T T
+x)/|x^T T x|$ repeteadly. When we find one $x$ that is a local maxima,
+we set our first found mean to be a scalar times $W x$. But what scalar?
+Well $T(x) = w_i |\tilde{\mu_i}|^3 = |\tilde{\mu_i}|$ so exactly $T(x)$.
+We can now keep looking for the rest of the means by only looking in the
+space orthogonal to our list of found means.
 
 \section{Mixtures of general distributions}\label{sec:genmix}
 For a mixture of general distributions, the subspace that maximizes the squared projections is not the best subspace for our classification purpose any more. Consider two components that resemble ``parallel pancakes'', i.e., two Gaussians that are narrow and separated along one direction and spherical (and identical) in all other directions. They are separable by a hyperplane orthogonal to the line joining their means. However, the 2-dimensional subspace that maximizes the sum of squared projections (and hence minimizes the sum of squared distances)
